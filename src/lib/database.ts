@@ -1,5 +1,20 @@
 import { supabase } from '@/lib/supabase';
 
+// Type definitions for ChatGPT conversation content
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+}
+
+export interface ChatConversationContent {
+  id: string;
+  title: string;
+  create_time: number;
+  update_time: number;
+  mapping: Record<string, { id: string; role: string; content: string }>;
+}
+
 // Type definitions for database tables
 export type UserSettings = {
   id: string;
@@ -28,7 +43,7 @@ export type Conversation = {
   user_id: string;
   project_id: string | null;
   title: string;
-  content: any; // JSONB content from ChatGPT
+  content: ChatConversationContent; // JSONB content from ChatGPT
   conversation_id: string;
   created_at: string;
   updated_at: string;
@@ -58,7 +73,7 @@ export type Note = {
 // Database service functions
 export const DatabaseService = {
   // User Settings
-  getUserSettings: async (userId: string) => {
+  getUserSettings: async (userId: string): Promise<UserSettings> => {
     const { data, error } = await supabase
       .from('user_settings')
       .select('*')
@@ -69,7 +84,7 @@ export const DatabaseService = {
     return data as UserSettings;
   },
   
-  upsertUserSettings: async (settings: Partial<UserSettings> & { user_id: string }) => {
+  upsertUserSettings: async (settings: Partial<UserSettings> & { user_id: string }): Promise<UserSettings> => {
     const { data, error } = await supabase
       .from('user_settings')
       .upsert(settings)
@@ -81,7 +96,7 @@ export const DatabaseService = {
   },
   
   // Projects
-  getProjects: async (userId: string) => {
+  getProjects: async (userId: string): Promise<Project[]> => {
     const { data, error } = await supabase
       .from('projects')
       .select('*')
@@ -93,7 +108,7 @@ export const DatabaseService = {
     return data as Project[];
   },
   
-  getProject: async (projectId: string) => {
+  getProject: async (projectId: string): Promise<Project> => {
     const { data, error } = await supabase
       .from('projects')
       .select('*')
@@ -104,7 +119,7 @@ export const DatabaseService = {
     return data as Project;
   },
   
-  createProject: async (project: Omit<Project, 'id' | 'created_at' | 'updated_at'>) => {
+  createProject: async (project: Omit<Project, 'id' | 'created_at' | 'updated_at'>): Promise<Project> => {
     const { data, error } = await supabase
       .from('projects')
       .insert(project)
@@ -115,7 +130,7 @@ export const DatabaseService = {
     return data as Project;
   },
   
-  updateProject: async (projectId: string, updates: Partial<Omit<Project, 'id' | 'user_id' | 'created_at' | 'updated_at'>>) => {
+  updateProject: async (projectId: string, updates: Partial<Omit<Project, 'id' | 'user_id' | 'created_at' | 'updated_at'>>): Promise<Project> => {
     const { data, error } = await supabase
       .from('projects')
       .update(updates)
@@ -127,7 +142,7 @@ export const DatabaseService = {
     return data as Project;
   },
   
-  deleteProject: async (projectId: string) => {
+  deleteProject: async (projectId: string): Promise<boolean> => {
     const { error } = await supabase
       .from('projects')
       .delete()
@@ -138,7 +153,7 @@ export const DatabaseService = {
   },
   
   // Conversations
-  getConversations: async (userId: string, projectId?: string) => {
+  getConversations: async (userId: string, projectId?: string): Promise<Conversation[]> => {
     let query = supabase
       .from('conversations')
       .select('*')
@@ -154,7 +169,7 @@ export const DatabaseService = {
     return data as Conversation[];
   },
   
-  getConversation: async (conversationId: string) => {
+  getConversation: async (conversationId: string): Promise<Conversation> => {
     const { data, error } = await supabase
       .from('conversations')
       .select('*')
@@ -165,7 +180,7 @@ export const DatabaseService = {
     return data as Conversation;
   },
   
-  createConversation: async (conversation: Omit<Conversation, 'id' | 'created_at' | 'updated_at'>) => {
+  createConversation: async (conversation: Omit<Conversation, 'id' | 'created_at' | 'updated_at'>): Promise<Conversation> => {
     const { data, error } = await supabase
       .from('conversations')
       .insert(conversation)
@@ -176,7 +191,7 @@ export const DatabaseService = {
     return data as Conversation;
   },
   
-  updateConversation: async (conversationId: string, updates: Partial<Omit<Conversation, 'id' | 'user_id' | 'created_at' | 'updated_at'>>) => {
+  updateConversation: async (conversationId: string, updates: Partial<Omit<Conversation, 'id' | 'user_id' | 'created_at' | 'updated_at'>>): Promise<Conversation> => {
     const { data, error } = await supabase
       .from('conversations')
       .update(updates)
@@ -189,7 +204,7 @@ export const DatabaseService = {
   },
   
   // Tasks
-  getTasks: async (userId: string, projectId?: string) => {
+  getTasks: async (userId: string, projectId?: string): Promise<Task[]> => {
     let query = supabase
       .from('tasks')
       .select('*')
@@ -205,7 +220,7 @@ export const DatabaseService = {
     return data as Task[];
   },
   
-  createTask: async (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>) => {
+  createTask: async (task: Omit<Task, 'id' | 'created_at' | 'updated_at'>): Promise<Task> => {
     const { data, error } = await supabase
       .from('tasks')
       .insert(task)
@@ -216,7 +231,7 @@ export const DatabaseService = {
     return data as Task;
   },
   
-  updateTask: async (taskId: string, updates: Partial<Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>>) => {
+  updateTask: async (taskId: string, updates: Partial<Omit<Task, 'id' | 'user_id' | 'created_at' | 'updated_at'>>): Promise<Task> => {
     const { data, error } = await supabase
       .from('tasks')
       .update(updates)
@@ -229,7 +244,7 @@ export const DatabaseService = {
   },
   
   // Notes
-  getNotes: async (userId: string, projectId: string) => {
+  getNotes: async (userId: string, projectId: string): Promise<Note[]> => {
     const { data, error } = await supabase
       .from('notes')
       .select('*')
@@ -241,7 +256,7 @@ export const DatabaseService = {
     return data as Note[];
   },
   
-  createNote: async (note: Omit<Note, 'id' | 'created_at' | 'updated_at'>) => {
+  createNote: async (note: Omit<Note, 'id' | 'created_at' | 'updated_at'>): Promise<Note> => {
     const { data, error } = await supabase
       .from('notes')
       .insert(note)
@@ -252,7 +267,7 @@ export const DatabaseService = {
     return data as Note;
   },
   
-  updateNote: async (noteId: string, content: string) => {
+  updateNote: async (noteId: string, content: string): Promise<Note> => {
     const { data, error } = await supabase
       .from('notes')
       .update({ content })
@@ -264,7 +279,7 @@ export const DatabaseService = {
     return data as Note;
   },
   
-  deleteNote: async (noteId: string) => {
+  deleteNote: async (noteId: string): Promise<boolean> => {
     const { error } = await supabase
       .from('notes')
       .delete()

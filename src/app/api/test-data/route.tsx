@@ -2,26 +2,26 @@
 
 import { useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { DatabaseService } from '@/lib/database';
+import { DatabaseService, Project } from '@/lib/database';
 import { sampleProjects, sampleTasks, sampleConversations, sampleNotes } from '@/app/api/test-data';
 
-export async function GET() {
+export async function GET(): Promise<Response> {
   return new Response(JSON.stringify({ message: 'Test data API endpoint' }), {
     headers: { 'Content-Type': 'application/json' },
   });
 }
 
-export default function TestDataPage() {
+export default function TestDataPage(): JSX.Element {
   const { user } = useAuth();
   
-  const loadTestData = async () => {
+  const loadTestData = async (): Promise<{ success: boolean; message: string }> => {
     if (!user) {
       return { success: false, message: 'User not authenticated' };
     }
     
     try {
       // Create sample projects
-      const projects = [];
+      const projects: Project[] = [];
       for (const projectData of sampleProjects) {
         const project = await DatabaseService.createProject({
           user_id: user.id,
@@ -71,14 +71,16 @@ export default function TestDataPage() {
       }
       
       return { success: true, message: 'Test data loaded successfully' };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to load test data';
       console.error('Error loading test data:', error);
-      return { success: false, message: error.message || 'Failed to load test data' };
+      return { success: false, message: errorMessage };
     }
   };
   
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
-    // This is just for demonstration - in a real app, you'd want a button to trigger this
+    // This is just for demonstration - in a real app, you&apos;d want a button to trigger this
     // loadTestData();
   }, []);
   

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { PostgrestError } from '@supabase/supabase-js';
 
-export default function OpenAIKeyForm() {
+export default function OpenAIKeyForm(): JSX.Element {
   const [apiKey, setApiKey] = useState('');
   const [storeKey, setStoreKey] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -13,7 +14,7 @@ export default function OpenAIKeyForm() {
 
   // Check if user has a stored API key
   useEffect(() => {
-    const checkForStoredKey = async () => {
+    const checkForStoredKey = async (): Promise<void> => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         
@@ -28,7 +29,7 @@ export default function OpenAIKeyForm() {
         if (error) throw error;
         
         setHasStoredKey(data?.has_openai_key || false);
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error checking for stored API key:', error);
       }
     };
@@ -36,7 +37,7 @@ export default function OpenAIKeyForm() {
     checkForStoredKey();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -74,8 +75,12 @@ export default function OpenAIKeyForm() {
         sessionStorage.setItem('openai_key', apiKey);
         setMessage('API key saved for this session only');
       }
-    } catch (error: any) {
-      setError(error.message || 'An error occurred while saving the API key');
+    } catch (error: unknown) {
+      const errorMessage = 
+        error instanceof Error ? error.message : 
+        error instanceof PostgrestError ? error.message :
+        'An error occurred while saving the API key';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

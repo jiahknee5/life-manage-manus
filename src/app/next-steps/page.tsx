@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { DatabaseService, Project, Task } from '@/lib/database';
+import { DatabaseService, Project, Task, Conversation, ChatConversationContent } from '@/lib/database';
+
+interface NextStep {
+  title: string;
+  description: string;
+}
 
 // Helper function to call OpenAI API for generating next steps
-async function generateNextSteps(project: Project, conversations: any[], apiKey: string) {
+async function generateNextSteps(project: Project, conversations: Conversation[], apiKey: string): Promise<NextStep[]> {
   const messages = [
     {
       role: 'system',
@@ -47,7 +52,7 @@ async function generateNextSteps(project: Project, conversations: any[], apiKey:
     }
 
     const content = data.choices[0]?.message?.content;
-    return JSON.parse(content);
+    return JSON.parse(content) as NextStep[];
   } catch (error) {
     console.error('Error generating next steps:', error);
     // Default next steps if API call fails
@@ -68,7 +73,7 @@ async function generateNextSteps(project: Project, conversations: any[], apiKey:
   }
 }
 
-export default function NextStepsPage() {
+export default function NextStepsPage(): JSX.Element {
   const { user, openAIKey } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -79,7 +84,7 @@ export default function NextStepsPage() {
   const [success, setSuccess] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProjects = async () => {
+    const fetchProjects = async (): Promise<void> => {
       if (!user) return;
       
       try {
@@ -93,8 +98,9 @@ export default function NextStepsPage() {
           const fetchedTasks = await DatabaseService.getTasks(user.id, fetchedProjects[0].id);
           setTasks(fetchedTasks);
         }
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch projects');
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch projects';
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -103,7 +109,7 @@ export default function NextStepsPage() {
     fetchProjects();
   }, [user]);
 
-  const handleProjectChange = async (projectId: string) => {
+  const handleProjectChange = async (projectId: string): Promise<void> => {
     if (!user) return;
     
     const project = projects.find(p => p.id === projectId);
@@ -115,14 +121,15 @@ export default function NextStepsPage() {
     try {
       const fetchedTasks = await DatabaseService.getTasks(user.id, projectId);
       setTasks(fetchedTasks);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch tasks');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch tasks';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const generateTasks = async () => {
+  const generateTasks = async (): Promise<void> => {
     if (!user || !openAIKey || !selectedProject) {
       setError('User authentication, OpenAI API key, or selected project is missing');
       return;
@@ -156,14 +163,15 @@ export default function NextStepsPage() {
       setTasks(updatedTasks);
       
       setSuccess(`Successfully generated ${nextSteps.length} next steps for "${selectedProject.title}"`);
-    } catch (err: any) {
-      setError(err.message || 'Failed to generate next steps');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate next steps';
+      setError(errorMessage);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const updateTaskStatus = async (taskId: string, newStatus: 'pending' | 'in_progress' | 'completed') => {
+  const updateTaskStatus = async (taskId: string, newStatus: 'pending' | 'in_progress' | 'completed'): Promise<void> => {
     if (!user) return;
     
     try {
@@ -173,8 +181,9 @@ export default function NextStepsPage() {
       setTasks(prev => prev.map(task => 
         task.id === taskId ? { ...task, status: newStatus } : task
       ));
-    } catch (err: any) {
-      setError(err.message || 'Failed to update task status');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update task status';
+      setError(errorMessage);
     }
   };
 

@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { AuthError } from '@supabase/supabase-js';
 
 type AuthMode = 'signin' | 'signup';
 
-export default function AuthForm() {
+export default function AuthForm(): JSX.Element {
   const [mode, setMode] = useState<AuthMode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,7 +14,7 @@ export default function AuthForm() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -37,8 +38,11 @@ export default function AuthForm() {
         if (error) throw error;
         setMessage('Signed in successfully!');
       }
-    } catch (error: any) {
-      setError(error.message || 'An error occurred during authentication');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof AuthError 
+        ? error.message 
+        : 'An error occurred during authentication';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -105,7 +109,7 @@ export default function AuthForm() {
           onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
           className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
         >
-          {mode === 'signin' ? "Don't have an account? Sign Up" : 'Already have an account? Sign In'}
+          {mode === 'signin' ? "Don&apos;t have an account? Sign Up" : 'Already have an account? Sign In'}
         </button>
       </div>
     </div>

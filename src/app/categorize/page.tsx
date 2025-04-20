@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { DatabaseService, Conversation, Project } from '@/lib/database';
+import { DatabaseService, Conversation, Project, ChatConversationContent } from '@/lib/database';
+
+interface CategoryResult {
+  category: 'work' | 'personal';
+  tags: string[];
+}
 
 // Helper function to call OpenAI API for categorization
-async function categorizeConversation(conversation: any, apiKey: string) {
+async function categorizeConversation(conversation: ChatConversationContent, apiKey: string): Promise<CategoryResult> {
   const messages = [
     {
       role: 'system',
@@ -41,7 +46,7 @@ async function categorizeConversation(conversation: any, apiKey: string) {
     }
 
     const content = data.choices[0]?.message?.content;
-    return JSON.parse(content);
+    return JSON.parse(content) as CategoryResult;
   } catch (error) {
     console.error('Error categorizing conversation:', error);
     // Default categorization if API call fails
@@ -49,7 +54,7 @@ async function categorizeConversation(conversation: any, apiKey: string) {
   }
 }
 
-export default function ProjectCategorizationPage() {
+export default function ProjectCategorizationPage(): JSX.Element {
   const { user, openAIKey } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -60,7 +65,7 @@ export default function ProjectCategorizationPage() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (): Promise<void> => {
       if (!user) return;
       
       try {
@@ -72,8 +77,9 @@ export default function ProjectCategorizationPage() {
         // Fetch existing projects
         const fetchedProjects = await DatabaseService.getProjects(user.id);
         setProjects(fetchedProjects);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch data');
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch data';
+        setError(errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -82,7 +88,7 @@ export default function ProjectCategorizationPage() {
     fetchData();
   }, [user]);
 
-  const categorizeConversations = async () => {
+  const categorizeConversations = async (): Promise<void> => {
     if (!user || !openAIKey) {
       setError('User authentication or OpenAI API key is missing');
       return;
@@ -124,7 +130,7 @@ export default function ProjectCategorizationPage() {
             user_id: user.id,
             title: projectTitle,
             description: `Automatically categorized from conversation: ${conversation.title}`,
-            category: category as 'work' | 'personal',
+            category: category,
             tags: tags || [],
             status: 'active',
             priority: 0
@@ -148,14 +154,15 @@ export default function ProjectCategorizationPage() {
       
       // Clear the conversations list after categorization
       setConversations([]);
-    } catch (err: any) {
-      setError(err.message || 'Failed to categorize conversations');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to categorize conversations';
+      setError(errorMessage);
     } finally {
       setIsCategorizing(false);
     }
   };
 
-  const manuallyAssignProject = async (conversationId: string, projectId: string) => {
+  const manuallyAssignProject = async (conversationId: string, projectId: string): Promise<void> => {
     if (!user) return;
     
     try {
@@ -165,8 +172,9 @@ export default function ProjectCategorizationPage() {
       setConversations(prev => prev.filter(conv => conv.id !== conversationId));
       
       setSuccess('Conversation assigned to project successfully');
-    } catch (err: any) {
-      setError(err.message || 'Failed to assign conversation to project');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to assign conversation to project';
+      setError(errorMessage);
     }
   };
 

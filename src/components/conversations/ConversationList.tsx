@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Conversation } from '@/lib/database';
 
 type ConversationListProps = {
@@ -13,7 +12,7 @@ export default function ConversationList({
   conversations, 
   onSelect, 
   selectedId 
-}: ConversationListProps) {
+}: ConversationListProps): JSX.Element {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
