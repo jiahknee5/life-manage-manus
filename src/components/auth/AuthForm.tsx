@@ -6,7 +6,7 @@ import { AuthError } from '@supabase/supabase-js';
 
 type AuthMode = 'signin' | 'signup';
 
-export default function AuthForm(): JSX.Element {
+export default function AuthForm() {
   const [mode, setMode] = useState<AuthMode>('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

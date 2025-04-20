@@ -73,7 +73,7 @@ async function generateNextSteps(project: Project, conversations: Conversation[]
   }
 }
 
-export default function NextStepsPage(): JSX.Element {
+export default function NextStepsPage() {
   const { user, openAIKey } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);

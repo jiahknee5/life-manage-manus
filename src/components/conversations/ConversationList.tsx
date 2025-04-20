@@ -12,7 +12,7 @@ export default function ConversationList({
   conversations, 
   onSelect, 
   selectedId 
-}: ConversationListProps): JSX.Element {
+}: ConversationListProps) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">

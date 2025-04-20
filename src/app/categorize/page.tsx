@@ -54,7 +54,7 @@ async function categorizeConversation(conversation: ChatConversationContent, api
   }
 }
 
-export default function ProjectCategorizationPage(): JSX.Element {
+export default function ProjectCategorizationPage() {
   const { user, openAIKey } = useAuth();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { PostgrestError } from '@supabase/supabase-js';
 
-export default function OpenAIKeyForm(): JSX.Element {
+export default function OpenAIKeyForm() {
   const [apiKey, setApiKey] = useState('');
   const [storeKey, setStoreKey] = useState(false);
   const [loading, setLoading] = useState(false);
