@@ -41,7 +41,7 @@ export default function ProjectDetailPage() {
         // Fetch notes
         const notesData = await DatabaseService.getNotes(user.id, id as string);
         setNotes(notesData);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(err.message || 'Failed to fetch project data');
       } finally {
         setIsLoading(false);
@@ -55,7 +55,7 @@ export default function ProjectDetailPage() {
     try {
       const conversation = await DatabaseService.getConversation(conversationId);
       setSelectedConversation(conversation);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to fetch conversation details');
     }
   };
@@ -75,7 +75,7 @@ export default function ProjectDetailPage() {
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to update task status');
     }
   };
@@ -98,7 +98,7 @@ export default function ProjectDetailPage() {
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to add note');
     }
   };
@@ -114,7 +114,7 @@ export default function ProjectDetailPage() {
       
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || 'Failed to update project');
     }
   };
