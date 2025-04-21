@@ -10,7 +10,7 @@ type ChatGPTConversation = {
   title: string;
   create_time: number;
   update_time: number;
-  mapping: Record<string, unknown>;
+  mapping: Record<string, any>;
   selected?: boolean;
 };
 
@@ -45,13 +45,13 @@ export default function UploadPage() {
       }
       
       // Extract conversations and add selected property
-      const extractedConversations = data.conversations.map((conv: unknown) => ({
+      const extractedConversations = data.conversations.map((conv: any) => ({
         ...conv,
         selected: true
       }));
       
       setConversations(extractedConversations);
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message || 'Failed to parse the uploaded file');
     } finally {
       setIsLoading(false);
@@ -112,7 +112,7 @@ export default function UploadPage() {
       // Clear the form after successful processing
       setFile(null);
       setConversations([]);
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message || 'Failed to process conversations');
     } finally {
       setIsProcessing(false);

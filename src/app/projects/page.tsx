@@ -24,7 +24,7 @@ export default function ProjectsPage() {
         const fetchedProjects = await DatabaseService.getProjects(user.id);
         setProjects(fetchedProjects);
         setFilteredProjects(fetchedProjects);
-      } catch (err: unknown) {
+      } catch (err: any) {
         setError(err.message || 'Failed to fetch projects');
       } finally {
         setIsLoading(false);

@@ -95,7 +95,7 @@ export default function Dashboard() {
           setSummary(executiveSummary);
           setIsGenerating(false);
         }
-      } catch (err: unknown) {
+      } catch (err: any) {
         setError(err.message || 'Failed to fetch dashboard data');
       } finally {
         setIsLoading(false);
