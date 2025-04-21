@@ -1,13 +1,8 @@
-"use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-
 export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/dashboard");
-  }, []);
-
-  return null;
+  return (
+    <main style={{ padding: "2rem", fontFamily: "sans-serif" }}>
+      <h1>✅ This is the real homepage</h1>
+      <p>No redirection. No router code. Just raw HTML.</p>
+    </main>
+  );
 }
